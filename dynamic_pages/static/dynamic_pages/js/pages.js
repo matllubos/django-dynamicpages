@@ -3,9 +3,7 @@ var options = [];
 
 function set_page_content(el) {
 	var data  = $(el).val().split('-');
-	var model = data[0].split('.');
-	var app = model[0]
-	model = model[1]
+	var model = data[0]
 	var name  = data[1];
 	var menu  = data[2];
 	var changeUrl = data[3] == 'true'
@@ -38,7 +36,7 @@ function set_page_content(el) {
 			$('.form-row.html_title').css('display','none');
 		}
 	} else {
-		$('#add_id_content').attr('href','/admin/'+app+'/'+model+'/add/');
+		$('#add_id_content').attr('href','/admin/'+model.split('.')[0]+'/'+model.split('.')[1]+'/add/');
 		
 		$('#id_content option').css('display','block');
 		
@@ -59,7 +57,7 @@ function set_page_content(el) {
 		
 		$(select).val(val);
 		if ($('#edit_id_content').length) {
-			$('#edit_id_content').attr('href','/admin/'+app+'/'+model+'/'+$('#id_content').val()+'/');
+			$('#edit_id_content').attr('href','/admin/'+model.split('.')[0]+'/'+model.split('.')[1]+'/'+$('#id_content').val()+'/');
 			
 		}
 		$('.form-row.content').css('display','block');

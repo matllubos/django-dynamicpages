@@ -39,17 +39,17 @@ META_TYPE = (
 )
   
 class Page(models.Model):
-    updated = models.DateTimeField(_(u'Datum a čas poslední úpravy'), auto_now=True)
-    parent = models.ForeignKey('Page',verbose_name = _(u'Nadřazená stránka'), null=True, blank=True)
-    title = PageTitleField(_(u'Název'), max_length=255)
+    updated = models.DateTimeField(_(u'Last modification'), auto_now=True)
+    parent = models.ForeignKey('Page',verbose_name = _(u'Parent page'), null=True, blank=True)
+    title = PageTitleField(_(u'Name'), max_length=255)
     relative_url = PageUrlField(_(u'URL'), max_length=100, blank=True, null=True)
-    default = models.BooleanField(_(u'Hlavní strana'), default=False)
-    order = models.IntegerField(_(u'Pořadí'), null=True, blank=True, help_text=_(u'V případě, že chcete zobrazit stránku v menu, nastavte pořadí'))
-    page_type = models.CharField(_(u'Typ'), max_length=250, choices=list(get_dynamic_url_choices()))
+    default = models.BooleanField(_(u'Main page'), default=False)
+    order = models.IntegerField(_(u'Order'), null=True, blank=True, help_text=_(u'If you want add this page to the menu set the order'))
+    page_type = models.CharField(_(u'Page type'), max_length=250, choices=list(get_dynamic_url_choices()))
     
-    content = models.ForeignKey('PageContent',verbose_name = _(u'Obsah stránky'), null=True, blank=True)
+    content = models.ForeignKey('PageContent',verbose_name = _(u'Page content'), null=True, blank=True)
     meta_data = models.ManyToManyField('Meta',verbose_name = _(u'Metadata'), null=True, blank=True)
-    html_title = models.CharField(_(u'Titulek stránky'), max_length=255, null=True, blank=True)
+    html_title = models.CharField(_(u'HTML Title'), max_length=255, null=True, blank=True)
     
     def __unicode__(self):
         return self.title;
@@ -130,8 +130,8 @@ class Page(models.Model):
         super(Page, self).delete()
         
     class Meta:
-        verbose_name = _(u'Stránka')
-        verbose_name_plural = _(u'Stránky')
+        verbose_name = _(u'Page')
+        verbose_name_plural = _(u'Pages')
     
     @staticmethod
     def get_page(path):
@@ -198,47 +198,55 @@ class PageContent(models.Model):
     
        
     class Meta:
-        verbose_name = _(u'Obsah stránky')
-        verbose_name_plural = _(u'Obsah stránky')
+        verbose_name = _(u'Page content')
+        verbose_name_plural = _(u'Page content')
 
 
 class DefaultPageContent(PageContent): 
-    title = models.CharField(_(u'Nadpis'), max_length=255) 
-    subtitle = models.CharField(_(u'Podnadpis'), max_length=255, null=True, blank=True)
+    title = models.CharField(_(u'Title'), max_length=255) 
+    subtitle = models.CharField(_(u'Subtitle'), max_length=255, null=True, blank=True)
     
     def __unicode__(self):
-        return '%s - %s' % (unicode(_(u'Obsah stránky')), self.title)
+        return '%s - %s' % (unicode(_(u'Default page content')), self.title)
     
     class Meta:
-        verbose_name = _(u'Obsah stránky')
-        verbose_name_plural = _(u'Obsah stránky')
+        verbose_name = _(u'Default page content')
+        verbose_name_plural = _(u'Default page content')
 
    
 class RedirectToURLPageContent(PageContent):  
-    url = models.URLField(_(u'URL adresa'), verify_exists=False)
+    url = models.URLField(_(u'URL address'), verify_exists=False)
 
     def __unicode__(self):
-        return '%s - %s' % (unicode(_(u'Přesměrování na URL')), self.url);
+        return '%s - %s' % (unicode(_(u'Redirect to URL')), self.url);
 
+    class Meta:
+        verbose_name = _(u'Redirect to URL')
+        verbose_name_plural = _(u'Redirect to URL')
+        
 class RedirectToPagePageContent(PageContent):
-    page = models.ForeignKey(Page, verbose_name = _(u'Stránka'))
-    
+    page = models.ForeignKey(Page, verbose_name = _(u'Redirect to page'), limit_choices_to = ~models.Q(page_type__in = ['none-redirects-menu-true', 'dynamic_pages.redirecttourlpagecontent-redirectstourl-menu-false', 'dynamic_pages.redirecttopagepagecontent-redirectstopage-menu-false']))
+                
     def __unicode__(self):
-        return '%s - %s' % (unicode(_(u'Přesměrování na stránku')), self.page);
-          
+        return '%s - %s' % (unicode(_(u'Redirect to page')), self.page);
+
+    class Meta:
+        verbose_name = _(u'Redirect to page')
+        verbose_name_plural = _(u'Redirect to page')
+                  
 class StaticPageContent(DefaultPageContent):
-    html = HtmlField(_(u'Html'), blank=True)   
+    html = HtmlField(_(u'HTML'), blank=True)   
    
     def __unicode__(self):
-        return '%s - %s' % (unicode(_(u'Statická stránka')), self.title);
+        return '%s - %s' % (unicode(_(u'Static content')), self.title);
     
     class Meta:
-        verbose_name = _(u'Statický obsah')
-        verbose_name_plural = _(u'Statický obsah')
+        verbose_name = _(u'Static content')
+        verbose_name_plural = _(u'Static content')
         
         
 class Meta(models.Model):
-    name = models.CharField(_(u'Název'), max_length=50, choices=META_TYPE, default="description") 
+    name = models.CharField(_(u'Name'), max_length=50, choices=META_TYPE, default="description") 
     content = models.CharField(_(u'Text'), max_length=255, null=True, blank=True)
     
     def __unicode__(self):

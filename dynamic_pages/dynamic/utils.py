@@ -6,10 +6,10 @@ from dynamic_pages.views import StaticView
 from dynamic_urls import DynamicUrl
     
 DEFAULT_DYNAMIC_URLS = (
-    DynamicUrl('static', _(u'Statická stránka'),  StaticView.as_view(), (r'',), 'dynamic_pages.StaticPageContent'),
-    DynamicUrl('redirects', _(u'Přesměrování na první podstranu')),
-    DynamicUrl('redirectstourl', _(u'Přesměrování na URL'), None, None, 'dynamic_pages.RedirectToURLPageContent', can_change_url = False),
-    DynamicUrl('redirectstopage', _(u'Přesměrování na Stránku'), None, None, 'dynamic_pages.RedirectToPagePageContent', can_change_url = False),
+    DynamicUrl('static', _(u'Static page'),  StaticView.as_view(), (r'',), 'dynamic_pages.StaticPageContent'),
+    DynamicUrl('redirects', _(u'Redirect to first child page')),
+    DynamicUrl('redirectstourl', _(u'Redirect to URL'), None, None, 'dynamic_pages.RedirectToURLPageContent', can_change_url = False),
+    DynamicUrl('redirectstopage', _(u'Redirect to page'), None, None, 'dynamic_pages.RedirectToPagePageContent', can_change_url = False),
 )
 
 def get_dynamic_urls():

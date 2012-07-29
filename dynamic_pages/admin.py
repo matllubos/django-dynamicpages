@@ -1,11 +1,8 @@
 # coding: utf-8
 from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
-from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
-from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_models
-from django.conf import settings
 
 from utilities.admin.admin import UpdateRelatedAdmin, HiddenModelAdmin
 
@@ -72,7 +69,7 @@ class PageAdmin(TreeModelAdmin):
         )
 
 admin.site.register(Page, PageAdmin)            
-
+admin.site.register(Meta, HiddenModelAdmin)   
 
 def autoregister():
     for model in get_models():
