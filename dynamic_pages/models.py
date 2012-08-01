@@ -12,8 +12,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Q
 
-from dynamic.utils import get_dynamic_url_choices, get_dynamic_url_by_choice
 from utilities.models.fields import PageTitleField, PageUrlField, HtmlField, PhoneField, OrderField #@UnresolvedImport
 
 last_reload = None
@@ -45,12 +45,17 @@ class Page(models.Model):
     relative_url = PageUrlField(_(u'URL'), max_length=100, blank=True, null=True)
     default = models.BooleanField(_(u'Main page'), default=False)
     order = models.IntegerField(_(u'Order'), null=True, blank=True, help_text=_(u'If you want add this page to the menu set the order'))
-    page_type = models.CharField(_(u'Page type'), max_length=250, choices=list(get_dynamic_url_choices()))
+    page_type = models.CharField(_(u'Page type'), max_length=250)
     
     content = models.ForeignKey('PageContent',verbose_name = _(u'Page content'), null=True, blank=True)
     meta_data = models.ManyToManyField('Meta',verbose_name = _(u'Metadata'), null=True, blank=True)
     html_title = models.CharField(_(u'HTML Title'), max_length=255, null=True, blank=True)
     
+    def __init__(self,  *args, **kwargs):
+        super(Page, self).__init__(*args, **kwargs)
+        from dynamic.utils import get_dynamic_url_choices
+        self._meta.get_field_by_name('page_type')[0]._choices = list(get_dynamic_url_choices())
+        
     def __unicode__(self):
         return self.title;
     
@@ -87,6 +92,7 @@ class Page(models.Model):
     absolute_url = property(_absolute_url)
 
     def pattern(self):
+        from dynamic.utils import get_dynamic_url_by_choice
         dynamic_url = get_dynamic_url_by_choice(self.page_type)
         if (self.page_type_name != 'redirects'):
             return dynamic_url.get_url_patterns(self)
@@ -98,6 +104,7 @@ class Page(models.Model):
     page_type_name = property(_page_type_name)
             
     def save(self):
+        from dynamic.utils import get_dynamic_url_by_choice
         url = get_dynamic_url_by_choice(self.page_type)
         if (not url.can_be_in_menu()):
             self.default = False
@@ -135,6 +142,7 @@ class Page(models.Model):
     
     @staticmethod
     def get_page(path):
+        from dynamic.utils import get_dynamic_url_by_choice
         path = re.sub(r'^/','', path)
         static_pages = Page.objects.exclude(page_type = 'none-redirects')
         for page in static_pages:
@@ -165,14 +173,13 @@ class PageContent(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.real_type = self._get_real_type()
-            contents = self.__class__.objects.all().order_by('-id')
+            model_name = self.__class__.__name__.lower()
+            contents = self.__class__.objects.filter(Q(id__startswith='%s$' % model_name)).order_by('-id')
             if (contents):
-                model_name, id = contents[0].id.split('$')
+                id = contents[0].id.split('$')[1]
                 id = int(id) + 1
             else :
-                model_name = self.__class__.__name__.lower()
                 id = 0
-                
             self.id = '%s$%s' % (model_name, id)
         
         super(PageContent, self).save(*args, **kwargs)

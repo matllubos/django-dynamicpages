@@ -28,10 +28,6 @@ class PageForm(forms.ModelForm):
                 cleaned_data["content"] = None
 
         return cleaned_data
-   
-
-
-    
     
     class Meta:
         model = Page
