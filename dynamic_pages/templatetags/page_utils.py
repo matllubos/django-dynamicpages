@@ -1,10 +1,11 @@
 # coding: utf-8
 from django import template
-from dynamic_pages.models import Page #@UnresolvedImport
 from django.core.urlresolvers import reverse
-from django.utils.encoding import smart_str, smart_unicode
+from django.utils.encoding import smart_unicode
+
 from dynamic_pages.dynamic.utils import get_dynamic_url
 from dynamic_pages.utils import quote
+from dynamic_pages.models import Page #@UnresolvedImport
 
 register = template.Library()
 
@@ -116,6 +117,9 @@ def dynamic_reverse(view_name, *args):
     return ''
     
 class DynamicReverseNode(template.Node):
+    '''
+    Dynamic alternative to django ReverseNode
+    '''
     
     def __init__(self, view_name, args):
         self.view_name = str(view_name)
@@ -137,6 +141,9 @@ def dynamicurl(parser, token):
     return DynamicReverseNode(args[1], args[2:])
 
 class QueryNode(template.Node):
+    '''
+    Helps with updating and changing URL queryes in templates
+    '''
     
     def __init__(self, data):
         self.data = data

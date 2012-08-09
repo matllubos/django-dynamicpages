@@ -1,5 +1,5 @@
 # coding: utf-8
-from django.utils.translation import ugettext_lazy as _
+from django.conf.urls.defaults import patterns
 
 def get_dynamic_urls():
     from urls import dynamic_patterns
@@ -26,7 +26,7 @@ def get_dynamic_url_choices():
     return choices   
 
 def dynamic_urlpatterns():
-    from pages.models import Page
+    from dynamic_pages.models import Page
     urlpatterns = patterns('')
     for page in Page.objects.all():
         if(page.pattern()):

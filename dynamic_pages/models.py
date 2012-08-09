@@ -1,38 +1,14 @@
 # coding: utf-8
 import re
-import sys
-
-from datetime import datetime
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_unicode 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 
-from utilities.models.fields import PageTitleField, PageUrlField, HtmlField, PhoneField, OrderField #@UnresolvedImport
-
-last_reload = None
-count_pages = 0
-
-def reload_urlconf(urlconf=None):
-    global last_reload
-    global count_pages
-    if not last_reload or Page.objects.all().count() != count_pages or Page.objects.filter(updated__gte = last_reload):
-        print reload
-        if urlconf is None:
-            urlconf = settings.ROOT_URLCONF
-        if urlconf in sys.modules:
-            reload(sys.modules[urlconf])
-        
-        count_pages = Page.objects.all().count()
-        last_reload = datetime.now()
-        
-        
+from utilities.models.fields import PageTitleField, PageUrlField, HtmlField #@UnresolvedImport
+       
 META_TYPE = ( 
     ('description', u'description'), 
     ('keywords', u'keywords')
@@ -152,8 +128,6 @@ class Page(models.Model):
     
         return None
     
-    
-    
     def is_active(self):
         if (self.page_type_name != 'redirects'):
             return True
@@ -173,7 +147,7 @@ class PageContent(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.real_type = self._get_real_type()
-            model_name = self.__class__.__name__.lower()
+            model_name = '%s.%s' % (self._meta.app_label.lower(), self.__class__.__name__.lower())
             contents = self.__class__.objects.filter(Q(id__startswith='%s$' % model_name)).order_by('-id')
             if (contents):
                 id = contents[0].id.split('$')[1]

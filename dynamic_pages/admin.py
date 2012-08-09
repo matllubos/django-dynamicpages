@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
 from django.db.models import get_models
 
-from utilities.admin.admin import TreeModelAdmin, HiddenModelAdmin
+from utilities.admin import TreeModelAdmin, HiddenModelAdmin
 
 from form.page import PageForm
 from models import Page, Meta, PageContent
@@ -37,6 +37,9 @@ admin.site.register(Page, PageAdmin)
 admin.site.register(Meta, HiddenModelAdmin)   
 
 def autoregister():
+    '''
+    Automatic registration PageContent models to admin
+    '''
     for model in get_models():
         if(issubclass(model, PageContent)):
             try:

@@ -3,10 +3,15 @@ import sys
 
 from datetime import datetime
 from django.utils import translation
-from dynamic_pages.models import Page
 from django.conf import settings
 
+from dynamic_pages.models import Page
+
 class UrlsReloadMiddleware(object):
+    '''
+    Automatically updates urls.py
+    '''
+    
     last_reload = None
     count_pages = 0
     

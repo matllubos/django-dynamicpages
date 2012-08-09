@@ -6,7 +6,9 @@ from dynamic_pages.models import Page #@UnresolvedImport
 from dynamic_pages.dynamic.utils import get_dynamic_url_by_choice #@UnresolvedImport
 
 class PageForm(forms.ModelForm):
-    
+    '''
+    Dynamic page validation form
+    '''
     
     def clean(self):
         cleaned_data = super(PageForm, self).clean()

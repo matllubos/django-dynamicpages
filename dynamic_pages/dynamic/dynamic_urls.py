@@ -1,8 +1,12 @@
 # coding: utf-8
 import re
+
 from django.conf.urls.defaults import url
 
 class DynamicUrl:
+    '''
+    Dynamic alternative to django url
+    '''
     
     def __init__(self, name, verbose_name, view = None, patterns = [], model = None, can_change_url = True):
         self.name = name

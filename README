@@ -1,0 +1,22 @@
+Installation
+
+Firstly install djagno-utilities
+pip install -U django-utilities
+pip install -U django-dynamic-pages
+
+Configuration
+Add utilities and dynamic_pages to INSTALLED_APPS in settings.py before django.contrib.admin:
+
+INSTALLED_APPS = (
+    …
+    'utilities',
+    'dynamic_pages',
+    'django.contrib.admin',
+    …
+)
+
+next add 'dynamic_pages.middleware.UrlsReloadMiddleware' to MIDDLEWARE_CLASSES
+
+and finally 
+
+
