@@ -112,6 +112,8 @@ def dynamic_reverse(view_name, *args):
             for arg in args:
                 pattern = re.sub('(\([^)]*\))', smart_unicode(arg), pattern, count=1)
             
+            if pattern == '/':
+                return pattern
             return '/%s'% re.sub('[\?\^\$]', '', pattern) 
         
     return ''
