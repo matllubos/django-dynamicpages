@@ -5,7 +5,11 @@ def get_dynamic_urls():
     from urls import dynamic_patterns
     from dynamic_pages.urls import DEFAULT_DYNAMIC_URLS
     try:
-        return dynamic_patterns + DEFAULT_DYNAMIC_URLS
+        dynamic_urls = list(dynamic_patterns)
+        for default_pattern in DEFAULT_DYNAMIC_URLS:
+            if not default_pattern.name in [pattern.name for pattern in dynamic_urls]:
+                dynamic_urls.append(default_pattern)
+        return dynamic_urls
     except:
         return []
     

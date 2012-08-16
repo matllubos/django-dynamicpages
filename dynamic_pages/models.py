@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
-from utilities.models.fields import PageTitleField, PageUrlField, HtmlField #@UnresolvedImport
+from utilities.models.fields import TreeForeignKey, PageTitleField, PageUrlField, HtmlField #@UnresolvedImport
        
 META_TYPE = ( 
     ('description', u'description'), 
@@ -16,7 +16,7 @@ META_TYPE = (
   
 class Page(models.Model):
     updated = models.DateTimeField(_(u'Last modification'), auto_now=True)
-    parent = models.ForeignKey('Page',verbose_name = _(u'Parent page'), null=True, blank=True)
+    parent = TreeForeignKey('Page', parent='parent', verbose_name = _(u'Parent page'), null=True, blank=True)
     title = PageTitleField(_(u'Name'), max_length=255)
     relative_url = PageUrlField(_(u'URL'), max_length=100, blank=True, null=True)
     default = models.BooleanField(_(u'Main page'), default=False)

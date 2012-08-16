@@ -13,11 +13,7 @@ class PageAdmin(TreeModelAdmin):
     form = PageForm
     parent = 'parent'
     
-    def formfield_for_foreignkey(self, db_field, request=None, **kwargs): 
-        sites = super(PageAdmin, self).formfield_for_foreignkey(db_field, request=None, **kwargs)
-        if db_field.name == self.parent: 
-            sites.queryset = Page.objects.filter(parent__isnull=True) | Page.objects.filter(parent__in = Page.objects.filter(parent__isnull=True)).exclude(parent=self.get_obj(request))
-        return sites
+   
     
     def get_obj(self, request):
         object_id = request.META['PATH_INFO'].strip('/').split('/')[-1]
