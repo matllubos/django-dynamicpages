@@ -3,12 +3,12 @@ from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
 from django.db.models import get_models
 
-from utilities.admin import TreeModelAdmin, HiddenModelAdmin
+from utilities.admin import TreeModelMixin, RelatedToolsAdmin, HiddenModelAdmin
 
 from form.page import PageForm
 from models import Page, Meta, PageContent
     
-class PageAdmin(TreeModelAdmin):
+class PageAdmin(TreeModelMixin, RelatedToolsAdmin):
     list_display = ('title','absolute_url','url', 'page_type', 'order')
     form = PageForm
     parent = 'parent'
