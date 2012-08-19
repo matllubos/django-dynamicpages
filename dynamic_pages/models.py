@@ -16,7 +16,7 @@ META_TYPE = (
   
 class Page(models.Model):
     updated = models.DateTimeField(_(u'Last modification'), auto_now=True)
-    parent = TreeForeignKey('Page', parent='parent', verbose_name = _(u'Parent page'), null=True, blank=True)
+    parent = TreeForeignKey('Page', verbose_name = _(u'Parent page'), null=True, blank=True)
     title = PageTitleField(_(u'Name'), max_length=255)
     relative_url = PageUrlField(_(u'URL'), max_length=100, blank=True, null=True)
     default = models.BooleanField(_(u'Main page'), default=False)
@@ -115,6 +115,7 @@ class Page(models.Model):
     class Meta:
         verbose_name = _(u'Page')
         verbose_name_plural = _(u'Pages')
+        ordering = ('order', )
     
     @staticmethod
     def get_page(path):
@@ -206,7 +207,7 @@ class RedirectToURLPageContent(PageContent):
         verbose_name_plural = _(u'Redirect to URL')
         
 class RedirectToPagePageContent(PageContent):
-    page = models.ForeignKey(Page, verbose_name = _(u'Redirect to page'), limit_choices_to = ~models.Q(page_type__in = ['none-redirects-menu-true', 'dynamic_pages.redirecttourlpagecontent-redirectstourl-menu-false', 'dynamic_pages.redirecttopagepagecontent-redirectstopage-menu-false']))
+    page = TreeForeignKey(Page, verbose_name = _(u'Redirect to page'), parent='parent', limit_choices_to = ~models.Q(page_type__in = ['none-redirects-menu-true', 'dynamic_pages.redirecttourlpagecontent-redirectstourl-menu-false', 'dynamic_pages.redirecttopagepagecontent-redirectstopage-menu-false']))
                 
     def __unicode__(self):
         return '%s - %s' % (unicode(_(u'Redirect to page')), self.page);
