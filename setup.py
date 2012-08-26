@@ -8,7 +8,7 @@ setup(
     keywords='django, admin, pages',
     author='Lubos Matl',
     author_email='matllubos@gmail.com',
-    url='https://www.assembla.com/code/django-dynamicpages/git/nodes',
+    url='https://github.com/matllubos/django-dynamicpages',
     license='GPL',
     package_dir={'dynamic_pages': 'dynamic_pages'},
     include_package_data=True,

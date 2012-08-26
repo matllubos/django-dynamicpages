@@ -3,7 +3,7 @@ This project is not CMS system but simplify developers create dynamic pages with
 Each page has assigned type and page content. Standard page contents are static page, redirect to another page, redirect to url and page content which containt only title. Each page content will be available as a page_content variable in the template. It is possible adds custom page content.
 
 Features:
-=========
+--------
 
 	* Create pages which URL is possible dynamically change
 	* Set page content to pages
@@ -17,7 +17,7 @@ Features:
 
 
 Installation:
-================
+-------------
 
 Firstly install djagno-simple-utilities::
 	pip install -U django-simple-utilities
