@@ -22,13 +22,13 @@ Installation:
 easy_install/pip
 ----------------
 
-Firstly install djagno-simple-utilities::
-	pip install -U django-simple-utilities
-	easy_install django-simple-utilities
+Firstly install djagno-simple-utilities:
+	* pip install -U django-simple-utilities
+	* easy_install django-simple-utilities
 	
-And finally install django-dynamic-pages::
-	pip install -U django-dynamic-pages
-	easy_install -U django-dynamic-pages
+and finally install django-dynamic-pages:
+	* pip install -U django-dynamic-pages
+	* easy_install -U django-dynamic-pages
 
 
 
