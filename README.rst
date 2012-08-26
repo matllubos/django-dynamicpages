@@ -71,7 +71,7 @@ After that you can set dynamic_patterns, for example::
 
 
 class dynamic url has this constructor:
-	DynamicUrl(name, verbose_name, view = None, patterns = [], model = None, can_change_url = True, view_kwargs = None)
+	``DynamicUrl(name, verbose_name, view = None, patterns = [], model = None, can_change_url = True, view_kwargs = None)``
 	
 		* name - unique name of dynamic_pattern
 		* verbose_name - name which is used in administration
@@ -106,14 +106,14 @@ page_utils:
 
 page_utils contains template tags. You can use it in your templates.
 
-{% load page_utils %}
+``{% load page_utils %}``
 
 	* dynamicurl:
 		because template tag url is not working on dynamic pages, you can use tag dynamicurl::
 
 			{% dynamicurl dynamic_pattern_name val1 val2 … %}
 
-	* get_query_string::
+	* get_query_string:
 		this tag help with change query strings::
 			{% get_query_string remove:a,b new_params:c=5,d='e' %} - return query string which from queries removes queries a and b and adds queries c and d with values 5 and 'e'
 			
