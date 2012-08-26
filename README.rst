@@ -115,7 +115,7 @@ page_utils contains template tags. You can use it in your templates.
 
 	* get_query_string:
 		this tag help with change query strings::
-			{% get_query_string remove:a,b new_params:c=5,d='e' %} - return query string which from queries removes queries a and b and adds queries c and d with values 5 and 'e'
+			``{% get_query_string remove:a,b new_params:c=5,d='e' %}`` - return query string which from queries removes queries a and b and adds queries c and d with values 5 and 'e'
 			
 
 TODO: In the future will be add navigation and page menu template tags.
