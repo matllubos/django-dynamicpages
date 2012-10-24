@@ -7,6 +7,7 @@ from django.utils.encoding import smart_unicode, force_unicode
 from django.core import urlresolvers, paginator
 
 from dynamic_pages.models import Page
+from django.core.cache import get_cache
 
 
 class Siteurls(object):
@@ -14,14 +15,13 @@ class Siteurls(object):
     def get_urls(self, pattern):
         return []
 
-
     def get_sitemaps(self, pattern, updated):
         urls = self.get_urls(pattern)
         for url in urls:
             if not re.search('[\[\?\+\*\.\]]', url):
                 url = re.sub('[\(\)]', '', url)
                 yield SitemapUrl(updated, url)
-        
+    
 
 class ModelFieldSiteurls(Siteurls):
     def __init__(self, queryset, field='pk'):
@@ -32,6 +32,12 @@ class ModelFieldSiteurls(Siteurls):
         for obj in self.queryset:
             yield re.sub('(\([^)]*\))', smart_unicode(getattr(obj, self.field)), pattern, count=1)
 
+    def get_sitemaps(self, pattern, updated):
+        for obj in self.queryset:
+            url = re.sub('(\([^)]*\))', smart_unicode(getattr(obj, self.field)), pattern, count=1)
+            if not re.search('[\[\?\+\*\.\]]', url):
+                url = re.sub('[\(\)]', '', url)
+                yield SitemapUrl(updated, url)
     
 class SitemapUrl(object):
     def __init__(self, updated, url):
@@ -46,7 +52,7 @@ class StaticPagesSitemap(Sitemap):
         
     def items(self):
         items = []
-        
+       
         from dynamic_pages.dynamic.utils import get_dynamic_url_by_choice
         
         for page in Page.objects.all().order_by('parent', 'order'):
