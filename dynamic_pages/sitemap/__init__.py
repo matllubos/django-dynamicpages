@@ -64,9 +64,6 @@ class StaticPagesSitemap(Sitemap):
                     items.extend(self.data[page.page_type_name][i].get_sitemaps(pattern, page.updated))
                     i+=1
                     
-            if len(dynamic_url.get_patterns(page)) == 0 and not page.page_type_name in ['redirects', 'redirectstourl', 'redirectstopage',]:
-                items.append(SitemapUrl(page.updated, page.absolute_url))
-
         return items
 
     
