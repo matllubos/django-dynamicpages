@@ -48,7 +48,7 @@ class DynamicUrl:
                 
             patterns.append(r'^%s/?$'% '/'.join(pattern_parts))
         
-        if (page.default):
+        if page.default and not r'^/?$' in patterns:
             patterns.append(r'^/?$')
                 
         return patterns
