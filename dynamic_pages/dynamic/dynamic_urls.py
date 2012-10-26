@@ -8,14 +8,19 @@ class DynamicUrl:
     Dynamic alternative to django url
     '''
     
-    def __init__(self, name, verbose_name, view = None, patterns = [], model = None, can_change_url = True, view_kwargs = None):
+    def __init__(self, name, verbose_name, view = None, patterns = [], model = None, can_change_url = True, view_kwargs = None, can_be_in_menu=None):
         self.name = name
         self.view = view
         self.patterns = patterns
         self.model = model
-        self.verbose_name = verbose_name
+        self.verbose_name = verbose_name        
         self.can_change_url = can_change_url
         self.view_kwargs = view_kwargs
+        
+        if can_be_in_menu == None:
+            self.can_be_in_menu = self.can_be_in_menu()
+        else:
+            self.can_be_in_menu = can_be_in_menu
     
     def get_model_name(self):
         if not self.model:
@@ -24,7 +29,7 @@ class DynamicUrl:
         
     def get_full_name(self):
         menu = 'nomenu'
-        if (self.can_be_in_menu()):
+        if (self.can_be_in_menu):
             menu = 'menu'
         change_url = 'false'
         if (self.can_change_url):
@@ -60,9 +65,6 @@ class DynamicUrl:
         return urls  
            
     def can_be_in_menu(self):
-        if (self.name in ('static', 'redirects', 'redirectstourl', 'redirectstopage')):
-            return True
-        
         for url_pattern in self.patterns:
             if (not re.search('\(.*[\?\|\+\.\*\[\]]+.*\)', url_pattern)):
                 return True

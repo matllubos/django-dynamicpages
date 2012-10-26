@@ -28,12 +28,8 @@ class ModelFieldSiteurls(Siteurls):
         self.queryset = queryset
         self.field = field
         
-    def get_urls(self, pattern):
-        for obj in self.queryset:
-            yield re.sub('(\([^)]*\))', smart_unicode(getattr(obj, self.field)), pattern, count=1)
-
     def get_sitemaps(self, pattern, updated):
-        for obj in self.queryset:
+        for obj in self.queryset.all():
             url = re.sub('(\([^)]*\))', smart_unicode(getattr(obj, self.field)), pattern, count=1)
             if not re.search('[\[\?\+\*\.\]]', url):
                 url = re.sub('[\(\)]', '', url)

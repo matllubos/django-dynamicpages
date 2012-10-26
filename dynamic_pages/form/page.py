@@ -14,7 +14,7 @@ class PageForm(forms.ModelForm):
         cleaned_data = super(PageForm, self).clean()
 
         page_type = cleaned_data.get("page_type")
-        if not self.instance.pk and (not (page_type in 'staticpagecontent-static-menu', 'redirecttourlpagecontent-redirectstourl-menu')) and Page.objects.filter(page_type = page_type):
+        if not self.instance.pk and (not (page_type in 'dynamic_pages.staticpagecontent-static-menu-true', 'dynamic_pages.urlpagecontent-linktourl-menu-false')) and Page.objects.filter(page_type = page_type):
             self._errors["page_type"] = self.error_class([_(u'Page with this type already exists')])
             
 

@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from utilities.models.fields import TreeForeignKey, PageTitleField, PageUrlField, HtmlField #@UnresolvedImport
+from django.utils.encoding import force_unicode
        
 META_TYPE = ( 
     ('description', u'description'), 
@@ -44,14 +45,14 @@ class Page(models.Model):
     def _url(self):
         if (self.page_type_name == 'static'):
             return '/'+self.absolute_url
-        if (self.page_type_name == 'redirects'):
+        if (self.page_type_name == 'linktofirstpage'):
             for qs in (Page.objects.filter(parent = self, order__isnull = False).order_by('order'), Page.objects.filter(parent = self, order__isnull = True)):
                 for page in qs:
                     if (page.is_active() and page.is_in_menu()):
                         return page.url
-        if (self.page_type_name == 'redirectstourl'):
+        if (self.page_type_name == 'linktourl'):
             return self.content.cast().url
-        if (self.page_type_name == 'redirectstopage'):
+        if (self.page_type_name == 'linktopage'):
             return self.content.cast().page.url
         from templatetags.page_utils import dynamic_reverse 
         return dynamic_reverse(self.page_type_name)
@@ -70,9 +71,7 @@ class Page(models.Model):
     def pattern(self):
         from dynamic.utils import get_dynamic_url_by_choice
         dynamic_url = get_dynamic_url_by_choice(self.page_type)
-        if (self.page_type_name != 'redirects'):
-            return dynamic_url.get_url_patterns(self)
-        return None
+        return dynamic_url.get_url_patterns(self)
         
     def _page_type_name(self):
         return self.page_type.split('-')[1]
@@ -82,7 +81,7 @@ class Page(models.Model):
     def save(self):
         from dynamic.utils import get_dynamic_url_by_choice
         url = get_dynamic_url_by_choice(self.page_type)
-        if (not url.can_be_in_menu()):
+        if (not url.can_be_in_menu):
             self.default = False
             self.order = None
         
@@ -121,16 +120,16 @@ class Page(models.Model):
     def get_page(path):
         from dynamic.utils import get_dynamic_url_by_choice
         path = re.sub(r'^/','', path)
-        static_pages = Page.objects.exclude(page_type = 'none-redirects')
+        static_pages = Page.objects.all()
         for page in static_pages:
             dynamic_url = get_dynamic_url_by_choice(page.page_type)
-            if dynamic_url.equals(page, path):
+            if dynamic_url and dynamic_url.equals(page, path):
                 return page
     
         return None
     
     def is_active(self):
-        if (self.page_type_name != 'redirects'):
+        if (self.page_type_name != 'linktofirstpage'):
             return True
         for page in Page.objects.filter(parent = self):
             if (page.is_active()):
@@ -196,25 +195,26 @@ class DefaultPageContent(PageContent):
         verbose_name_plural = _(u'Default page content')
 
    
-class RedirectToURLPageContent(PageContent):  
+class URLPageContent(PageContent):  
     url = models.URLField(_(u'URL address'), verify_exists=False)
 
     def __unicode__(self):
-        return '%s - %s' % (unicode(_(u'Redirect to URL')), self.url);
+        return '%s - %s' % (force_unicode(_(u'URL')), self.url);
 
     class Meta:
-        verbose_name = _(u'Redirect to URL')
-        verbose_name_plural = _(u'Redirect to URL')
+        verbose_name = _(u'URL')
+        verbose_name_plural = _(u'URL')
         
-class RedirectToPagePageContent(PageContent):
-    page = TreeForeignKey(Page, verbose_name = _(u'Redirect to page'), parent='parent', limit_choices_to = ~models.Q(page_type__in = ['none-redirects-menu-true', 'dynamic_pages.redirecttourlpagecontent-redirectstourl-menu-false', 'dynamic_pages.redirecttopagepagecontent-redirectstopage-menu-false']))
-                
+class PagelinkPageContent(PageContent):
+    page = models.ForeignKey(Page, verbose_name = _(u'Redirect to page'), limit_choices_to = ~Q(page_type__in = ['none-linktofirstpage-menu-true','dynamic_pages.urlpagecontent-linktourl-menu-false', 'dynamic_pages.pagelinkpagecontent-linktopage-menu-false', 'dynamic_pages.pagelinkpagecontent-linkopage-menu-false']) & Q(page_type__contains='-menu-'))
+    #old 'dynamic_pages.redirecttourlpagecontent-redirectstourl-menu-false', 'dynamic_pages.redirecttopagepagecontent-redirectstopage-menu-false'         
+    #new 'dynamic_pages.pagelinkpagecontent-linktourl-menu-false', 'dynamic_pages.pagelinkpagecontent-linkopage-menu-false', 'dynamic_pages.pagelinkpagecontent-linkopage-menu-false'
     def __unicode__(self):
-        return '%s - %s' % (unicode(_(u'Redirect to page')), self.page);
+        return '%s - %s' % (force_unicode(_(u'Link to page')), self.page);
 
     class Meta:
-        verbose_name = _(u'Redirect to page')
-        verbose_name_plural = _(u'Redirect to page')
+        verbose_name = _(u'Link to page')
+        verbose_name_plural = _(u'Link to page')
                   
 class StaticPageContent(DefaultPageContent):
     html = HtmlField(_(u'HTML'), blank=True)   
