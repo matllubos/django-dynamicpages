@@ -29,10 +29,20 @@ def get_dynamic_url_choices():
         choices.append(dynamic_url.get_choice())
     return choices   
 
-def dynamic_urlpatterns():
+def dynamic_urlpatterns(sitemap=False):
     from dynamic_pages.models import Page
     urlpatterns = patterns('')
+    sitemaps = {};
+       
     for page in Page.objects.all():
         if(page.pattern()):
             urlpatterns += page.pattern()
+            if (sitemap):
+                sitemaps[page.pk] = page.sitemap()
+    
+    if (sitemap):
+        from django.contrib.sitemaps import views as sitemap_views
+        from django.conf.urls.defaults import url
+        urlpatterns.append(url(r'^sitemap\.xml$', sitemap_views.sitemap, {'sitemaps': sitemaps}))
+        
     return urlpatterns

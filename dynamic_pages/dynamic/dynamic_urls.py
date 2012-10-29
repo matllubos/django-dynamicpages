@@ -8,7 +8,7 @@ class DynamicUrl:
     Dynamic alternative to django url
     '''
     
-    def __init__(self, name, verbose_name, view = None, patterns = [], model = None, can_change_url = True, view_kwargs = None, can_be_in_menu=None):
+    def __init__(self, name, verbose_name, view = None, patterns = [], model = None, can_change_url = True, view_kwargs = None, can_be_in_menu=None, sitemap_values=[]):
         self.name = name
         self.view = view
         self.patterns = patterns
@@ -16,6 +16,8 @@ class DynamicUrl:
         self.verbose_name = verbose_name        
         self.can_change_url = can_change_url
         self.view_kwargs = view_kwargs
+        
+        self.sitemap_values = sitemap_values
         
         if can_be_in_menu == None:
             self.can_be_in_menu = self.can_be_in_menu()

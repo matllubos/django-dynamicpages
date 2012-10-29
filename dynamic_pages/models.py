@@ -6,9 +6,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.utils.encoding import force_unicode
 
 from utilities.models.fields import TreeForeignKey, PageTitleField, PageUrlField, HtmlField #@UnresolvedImport
-from django.utils.encoding import force_unicode
        
 META_TYPE = ( 
     ('description', u'description'), 
@@ -72,6 +72,12 @@ class Page(models.Model):
         from dynamic.utils import get_dynamic_url_by_choice
         dynamic_url = get_dynamic_url_by_choice(self.page_type)
         return dynamic_url.get_url_patterns(self)
+    
+    def sitemap(self):
+        from sitemap import DefaultPageSitemap
+        from dynamic.utils import get_dynamic_url_by_choice
+        dynamic_url = get_dynamic_url_by_choice(self.page_type)
+        return DefaultPageSitemap(self, dynamic_url.sitemap_values)
         
     def _page_type_name(self):
         return self.page_type.split('-')[1]
