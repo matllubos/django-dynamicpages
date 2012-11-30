@@ -1,5 +1,6 @@
 # coding: utf-8
 import re
+import unicodedata
 
 from django.contrib.admin.util import quote as django_quote, unquote as django_unquote
 from django.utils.encoding import force_unicode
