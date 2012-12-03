@@ -94,11 +94,11 @@ def url_quote(value):
 import re
 
 
-def dynamic_reverse(view_name, site=settings.SITE_ID, *args):
+def dynamic_reverse(view_name, site=settings.SITE_ID, args=[]):
     url = get_dynamic_url(view_name)
     if not url:
         return ''
-    
+   
     pages = Page.objects.filter(page_type = url.get_full_name())
     if not pages:
         return ''
@@ -138,7 +138,7 @@ class DynamicReverseNode(template.Node):
 
     def render(self, context):
         args = [arg.resolve(context) for arg in self.args]
-        return dynamic_reverse(self.view_name, *args)
+        return dynamic_reverse(self.view_name, args=args)
     
 @register.tag
 def dynamicurl(parser, token):
