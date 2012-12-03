@@ -2,13 +2,14 @@
 import re
 
 from django.conf.urls.defaults import url
+from django.conf import settings
 
 class DynamicUrl:
     '''
     Dynamic alternative to django url
     '''
     
-    def __init__(self, name, verbose_name, view = None, patterns = [], model = None, can_change_url = True, view_kwargs = None, can_be_in_menu=None, sitemap_values=[]):
+    def __init__(self, name, verbose_name, view = None, patterns = [], model = None, can_change_url = True, view_kwargs = None, can_be_in_menu=None, sitemap_values=[], site=None):
         self.name = name
         self.view = view
         self.patterns = patterns
@@ -18,6 +19,7 @@ class DynamicUrl:
         self.view_kwargs = view_kwargs
         
         self.sitemap_values = sitemap_values
+        self.site = site
         
         if can_be_in_menu == None:
             self.can_be_in_menu = self.can_be_in_menu()
@@ -38,10 +40,13 @@ class DynamicUrl:
             change_url = 'true'
         return '%s-%s-%s-%s' % (self.get_model_name(), self.name, menu, change_url)  
      
-    def get_patterns(self, page):
+    def get_patterns(self, page, site = settings.SITE_ID):
         
         patterns = []
         if (not self.patterns):
+            return patterns
+        
+        if page.publish_on.pk != site:
             return patterns
         
         for pattern in self.patterns:
@@ -62,6 +67,7 @@ class DynamicUrl:
         
     def get_url_patterns(self, page):
         urls = []
+       
         for pattern in self.get_patterns(page):
             urls.append(url(pattern, self.view, kwargs=self.view_kwargs, name=self.name))
         return urls  

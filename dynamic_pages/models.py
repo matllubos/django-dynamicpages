@@ -7,8 +7,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.encoding import force_unicode
+from django.contrib.sites.models import Site
+from django.contrib.sites.managers import CurrentSiteManager
+from django.conf import settings
 
 from utilities.models.fields import TreeForeignKey, PageTitleField, PageUrlField, HtmlField #@UnresolvedImport
+
+
        
 META_TYPE = ( 
     ('description', u'description'), 
@@ -16,6 +21,7 @@ META_TYPE = (
 )
   
 class Page(models.Model):
+    publish_on = models.ForeignKey(Site, verbose_name = _(u'Site'), default=settings.SITE_ID)
     updated = models.DateTimeField(_(u'Last modification'), auto_now=True)
     parent = TreeForeignKey('Page', verbose_name = _(u'Parent page'), null=True, blank=True)
     title = PageTitleField(_(u'Name'), max_length=255)
@@ -27,6 +33,10 @@ class Page(models.Model):
     content = models.ForeignKey('PageContent',verbose_name = _(u'Page content'), null=True, blank=True)
     meta_data = models.ManyToManyField('Meta',verbose_name = _(u'Metadata'), null=True, blank=True)
     html_title = models.CharField(_(u'HTML Title'), max_length=255, null=True, blank=True)
+    
+    objects = models.Manager()
+    on_site = CurrentSiteManager('publish_on')
+    
     
     def __init__(self,  *args, **kwargs):
         super(Page, self).__init__(*args, **kwargs)
@@ -46,7 +56,7 @@ class Page(models.Model):
         if (self.page_type_name == 'static'):
             return '/'+self.absolute_url
         if (self.page_type_name == 'linktofirstpage'):
-            for qs in (Page.objects.filter(parent = self, order__isnull = False).order_by('order'), Page.objects.filter(parent = self, order__isnull = True)):
+            for qs in (Page.on_site.filter(parent = self, order__isnull = False).order_by('order'), Page.on_site.filter(parent = self, order__isnull = True)):
                 for page in qs:
                     if (page.is_active() and page.is_in_menu()):
                         return page.url
@@ -92,7 +102,7 @@ class Page(models.Model):
             self.order = None
         
         if(self.default):
-            for page in Page.objects.filter(default=True):
+            for page in Page.on_site.filter(default=True):
                 page.default = False
                 super(Page, page).save()
             
@@ -100,7 +110,7 @@ class Page(models.Model):
         if (self.order == None): 
             super(Page, self).save()
         else:
-            pages = Page.objects.filter(order__gte = self.order, parent = self.parent).order_by('order')
+            pages = Page.on_site.filter(order__gte = self.order, parent = self.parent).order_by('order')
             first = True
             for page in pages:
                 if (first and page.order != self.order):
@@ -126,7 +136,7 @@ class Page(models.Model):
     def get_page(path):
         from dynamic.utils import get_dynamic_url_by_choice
         path = re.sub(r'^/','', path)
-        static_pages = Page.objects.all()
+        static_pages = Page.on_site.all()
         for page in static_pages:
             dynamic_url = get_dynamic_url_by_choice(page.page_type)
             if dynamic_url and dynamic_url.equals(page, path):
@@ -137,7 +147,7 @@ class Page(models.Model):
     def is_active(self):
         if (self.page_type_name != 'linktofirstpage'):
             return True
-        for page in Page.objects.filter(parent = self):
+        for page in Page.on_site.filter(parent = self):
             if (page.is_active()):
                 return True
         return False

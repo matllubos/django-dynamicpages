@@ -1,5 +1,7 @@
 # coding: utf-8
 from django.conf.urls.defaults import patterns
+from django.contrib.sites.models import get_current_site
+from django.conf import settings
 
 def get_dynamic_urls():
     from urls import dynamic_patterns
@@ -37,7 +39,7 @@ def dynamic_urlpatterns(sitemap=False):
     for page in Page.objects.all():
         if(page.pattern()):
             urlpatterns += page.pattern()
-            if (sitemap):
+            if sitemap and page.publish_on.pk == settings.SITE_ID:
                 sitemaps[page.pk] = page.sitemap()
     
     if (sitemap):

@@ -9,7 +9,9 @@ from form.page import PageForm
 from models import Page, Meta, PageContent
     
 class PageAdmin(TreeModelMixin, RelatedToolsAdmin):
-    list_display = ('title','absolute_url','url', 'page_type', 'order')
+    list_display = ('title','absolute_url','url', 'page_type', 'publish_on', 'order')
+    list_filter = ('publish_on', )
+    
     form = PageForm
     parent = 'parent'
     
@@ -21,7 +23,7 @@ class PageAdmin(TreeModelMixin, RelatedToolsAdmin):
             object_id = int(object_id)
         except ValueError:
             return None
-        return Page.objects.get(pk=object_id)
+        return Page.on_site.get(pk=object_id)
     
     class Media:
         js = (

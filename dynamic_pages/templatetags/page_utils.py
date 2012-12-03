@@ -6,6 +6,8 @@ from django.utils.encoding import smart_unicode
 from dynamic_pages.dynamic.utils import get_dynamic_url
 from dynamic_pages.utils import quote
 from dynamic_pages.models import Page #@UnresolvedImport
+from django.conf import settings
+from django.contrib.sites.models import Site
 
 register = template.Library()
 
@@ -19,7 +21,7 @@ def is_active(link, req_path):
     return "no-active"
     
 def mainmenu(path):
-    pages = Page.objects.filter(parent__isnull = True, order__isnull = False).order_by('order')
+    pages = Page.on_site.filter(parent__isnull = True, order__isnull = False).order_by('order')
     for page in pages:
         if (not page.is_active()):
             pages = pages.exclude(pk = page.id)
@@ -27,7 +29,7 @@ def mainmenu(path):
 register.inclusion_tag('pages/menu/mainmenu.html')(mainmenu) 
 
 def footmenu(path):
-    pages = Page.objects.filter(parent__isnull = True, order__isnull = False).order_by('order')
+    pages = Page.on_site.filter(parent__isnull = True, order__isnull = False).order_by('order')
     for page in pages:
         if (not page.is_active()):
             pages = pages.exclude(pk = page.id)
@@ -40,7 +42,7 @@ def submenu(path):
     if (parent):
         while(parent.parent != None):
             parent = parent.parent
-        pages = Page.objects.filter(parent = parent, order__isnull = False).order_by('order')
+        pages = Page.on_site.filter(parent = parent, order__isnull = False).order_by('order')
         for page in pages:
             if (not page.is_active()):
                 pages = pages.exclude(pk = page.id)
@@ -56,7 +58,7 @@ def subsubmenu(context, path, form = None):
     if (parent and parent.parent):
         while(parent.parent.parent != None):
             parent = parent.parent
-        pages = Page.objects.filter(parent = parent, order__isnull = False).order_by('order')
+        pages = Page.on_site.filter(parent = parent, order__isnull = False).order_by('order')
         for page in pages:
             if (not page.is_active()):
                 pages = pages.exclude(pk = page.id)
@@ -92,7 +94,7 @@ def url_quote(value):
 import re
 
 
-def dynamic_reverse(view_name, *args):
+def dynamic_reverse(view_name, site=settings.SITE_ID, *args):
     url = get_dynamic_url(view_name)
     if not url:
         return ''
@@ -102,7 +104,8 @@ def dynamic_reverse(view_name, *args):
         return ''
      
     page = pages[0]
-    for pattern in url.get_patterns(page):
+    
+    for pattern in url.get_patterns(page, site):
         if (not re.search('\(.*[\?\|\+\.\*\[\]]+.*\)', pattern)):
             pattern = re.sub(r'[\)\(]', '', pattern)
         
@@ -113,9 +116,14 @@ def dynamic_reverse(view_name, *args):
                 pattern = re.sub('(\([^)]*\))', smart_unicode(arg), pattern, count=1)
             
             pattern = re.sub('[\?\^\$]', '', pattern) 
-            if pattern == '/':
-                return pattern
-            return '/%s' % pattern 
+           
+            domain = ''
+            if site != settings.SITE_ID:
+                domain = 'http://%s' % Site.objects.get(pk = site).domain
+            
+            if pattern == '/':               
+                return '%s%s' (domain, pattern)
+            return '%s/%s' % (domain, pattern) 
         
     return ''
     
