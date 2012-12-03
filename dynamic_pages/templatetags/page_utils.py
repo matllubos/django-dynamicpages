@@ -122,7 +122,7 @@ def dynamic_reverse(view_name, site=settings.SITE_ID, *args):
                 domain = 'http://%s' % Site.objects.get(pk = site).domain
             
             if pattern == '/':               
-                return '%s%s' (domain, pattern)
+                return '%s%s' % (domain, pattern)
             return '%s/%s' % (domain, pattern) 
         
     return ''
