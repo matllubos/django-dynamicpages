@@ -1,0 +1,13 @@
+{% extends "admin/change_tree.html" %}
+
+{% load adminmedia admin_list i18n %}
+
+
+{% block object-tools-items %}
+    <li>
+    	<a href="add/?site={{ request.GET.publish_on__id__exact }}{% if is_popup %}&_popup=1{% endif %}" class="addlink">
+          {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+        </a>
+   </li>
+{% endblock %}
+
