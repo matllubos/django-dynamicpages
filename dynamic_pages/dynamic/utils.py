@@ -25,10 +25,11 @@ def get_dynamic_url_by_choice(choice):
     name = choice.split('-')[1]
     return get_dynamic_url(name)
 
-def get_dynamic_url_choices():
+def get_dynamic_url_choices(site=None):
     choices = []
     for dynamic_url in get_dynamic_urls():
-        choices.append(dynamic_url.get_choice())
+        if not site or not dynamic_url.site or dynamic_url.site == site:
+            choices.append(dynamic_url.get_choice())
     return choices   
 
 def dynamic_urlpatterns(sitemap=False):

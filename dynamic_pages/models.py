@@ -10,10 +10,15 @@ from django.utils.encoding import force_unicode
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
 from django.conf import settings
+import django.db.models.options as options
 
 from utilities.models.fields import TreeForeignKey, PageTitleField, PageUrlField, HtmlField #@UnresolvedImport
 
+from forms import PageTreeForeignKey
+from dynamic_pages import filters
 
+
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('admin_foreign_key_tools',)
        
 META_TYPE = ( 
     ('description', u'description'), 
@@ -22,8 +27,9 @@ META_TYPE = (
   
 class Page(models.Model):
     publish_on = models.ForeignKey(Site, verbose_name = _(u'Site'), default=settings.SITE_ID)
+    publish_on.page_site_filter = True
     updated = models.DateTimeField(_(u'Last modification'), auto_now=True)
-    parent = TreeForeignKey('Page', verbose_name = _(u'Parent page'), null=True, blank=True)
+    parent = PageTreeForeignKey('Page', verbose_name = _(u'Parent page'), null=True, blank=True)
     title = PageTitleField(_(u'Name'), max_length=255)
     relative_url = PageUrlField(_(u'URL'), max_length=100, blank=True, null=True)
     default = models.BooleanField(_(u'Main page'), default=False)
@@ -63,7 +69,10 @@ class Page(models.Model):
         if (self.page_type_name == 'linktourl'):
             return self.content.cast().url
         if (self.page_type_name == 'linktopage'):
-            return self.content.cast().page.url
+            domain = ''
+            if self.content.cast().page.publish_on.pk != settings.SITE_ID:
+                domain = 'http://%s' % self.content.cast().page.publish_on.domain
+            return '%s%s' % (domain, self.content.cast().page.url)
         from templatetags.page_utils import dynamic_reverse 
         return dynamic_reverse(self.page_type_name)
     url = property(_url)
@@ -121,16 +130,18 @@ class Page(models.Model):
             super(Page, self).save()
         
     def delete(self):
-        pages = Page.objects.filter(order__gt = self.order, parent = self.parent).order_by('order')
-        for page in pages:
-            page.order -= 1
-            page.save()
+        if self.order:
+            pages = Page.objects.filter(order__gt = self.order, parent = self.parent).order_by('order')
+            for page in pages:
+                page.order -= 1
+                page.save()
         super(Page, self).delete()
         
     class Meta:
         verbose_name = _(u'Page')
         verbose_name_plural = _(u'Pages')
         ordering = ('order', )
+        admin_foreign_key_tools = False
     
     @staticmethod
     def get_page(path):

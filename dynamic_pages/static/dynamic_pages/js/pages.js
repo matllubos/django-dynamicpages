@@ -1,7 +1,7 @@
 
-var options = [];
+var pageContentOptions = [];
 
-function set_page_content(el) {
+function setPageContent(el) {
 	var data  = $(el).val().split('-');
 	var model = data[0]
 	var name  = data[1];
@@ -44,7 +44,7 @@ function set_page_content(el) {
 		
 		val = $(select).val();
 		$(select).empty();
-		$.each(options, function(){
+		$.each(pageContentOptions, function(){
 			option = this;
 			if (option.value == '' || option.value.split('$')[0] == model) {
 				
@@ -67,19 +67,22 @@ function set_page_content(el) {
 
 
 
-function page_content() {
+function pageContent() {
 	select = 'select#id_content';
     $(select).find('option').each(function() {
-        options.push({value: $(this).val(), text: $(this).text()});
+    	pageContentOptions.push({value: $(this).val(), text: $(this).text()});
     });
         
-	set_page_content($('#id_page_type'));
+	setPageContent($('#id_page_type'));
 	$('#id_page_type').change(function() {
-		set_page_content(this);
+		setPageContent(this);
 	});
 }
+
+
+
+
 $(document).ready(function(){
-	page_content();
-        
+	pageContent();
 });
  
