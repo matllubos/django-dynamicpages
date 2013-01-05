@@ -108,14 +108,15 @@ class PageAdmin(TreeModelMixin, RelatedToolsAdmin):
             
      
     def format_url(self, obj):
-        return '<a href="%s">%s</a>' % (obj.url, obj._url(show_domain=True))
+        return '<a href="%s" onclick="return showPopup(this);">%s</a>' % (obj.url, obj._url(show_domain=True))
     format_url.short_description = _(u'Url')
     format_url.allow_tags = True
                
     class Media:
         js = (
-            '/static/dynamic_pages/js/jquery-1.6.4.min.js',
-            '/static/dynamic_pages/js/pages.js'
+            '%sdynamic_pages/js/jquery-1.6.4.min.js' % settings.STATIC_URL,
+            '%sdynamic_pages/js/pages.js' % settings.STATIC_URL,
+            '%sutilities/js/popup.js' % settings.STATIC_URL,
         )
 
 admin.site.register(Page, PageAdmin)            
