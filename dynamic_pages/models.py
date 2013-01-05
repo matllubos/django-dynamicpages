@@ -62,7 +62,7 @@ class Page(models.Model):
         if (self.page_type_name == 'static'):
             return '/'+self.absolute_url
         elif (self.page_type_name == 'linktofirstpage'):
-            for qs in (Page.on_site.filter(parent = self, order__isnull = False).order_by('order'), Page.on_site.filter(parent = self, order__isnull = True)):
+            for qs in (Page.objects.filter(parent = self, order__isnull = False).order_by('order'), Page.objects.filter(parent = self, order__isnull = True)):
                 for page in qs:
                     if (page.is_active() and page.is_in_menu()):
                         return page._url(show_domain=show_domain)
