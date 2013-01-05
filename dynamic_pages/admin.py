@@ -3,19 +3,19 @@ from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
 from django.db.models import get_models
 from django.conf import settings
-
-from utilities.admin import TreeModelMixin, RelatedToolsAdmin, HiddenModelAdmin
-
-from forms.page import PageForm
-from models import Page, Meta, PageContent
 from django.contrib.sites.models import Site
 from django.utils.encoding import smart_unicode
-from dynamic_pages.dynamic.utils import get_dynamic_url_choices
 from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext_lazy as _
 
+from utilities.admin import TreeModelMixin, RelatedToolsAdmin, HiddenModelAdmin
+ 
+from dynamic_pages.dynamic.utils import get_dynamic_url_choices
+from models import Page, Meta, PageContent
+from forms.page import PageForm
     
 class PageAdmin(TreeModelMixin, RelatedToolsAdmin):
-    list_display = ('title','absolute_url','url', 'page_type', 'publish_on', 'order')
+    list_display = ('title','format_url', 'page_type', 'publish_on', 'order')
     list_filter = ('publish_on', )
     
     form = PageForm
@@ -106,7 +106,12 @@ class PageAdmin(TreeModelMixin, RelatedToolsAdmin):
                 return response
         return response
             
-            
+     
+    def format_url(self, obj):
+        return '<a href="%s">%s</a>' % (obj.url, obj._url(show_domain=True))
+    format_url.short_description = _(u'Url')
+    format_url.allow_tags = True
+               
     class Media:
         js = (
             '/static/dynamic_pages/js/jquery-1.6.4.min.js',

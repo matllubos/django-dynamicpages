@@ -58,23 +58,20 @@ class Page(models.Model):
         return ''
     parent_url = property(_parent_url)
         
-    def _url(self):
+    def _url(self, show_domain=False):
         if (self.page_type_name == 'static'):
             return '/'+self.absolute_url
-        if (self.page_type_name == 'linktofirstpage'):
+        elif (self.page_type_name == 'linktofirstpage'):
             for qs in (Page.on_site.filter(parent = self, order__isnull = False).order_by('order'), Page.on_site.filter(parent = self, order__isnull = True)):
                 for page in qs:
                     if (page.is_active() and page.is_in_menu()):
-                        return page.url
-        if (self.page_type_name == 'linktourl'):
+                        return page._url(show_domain=show_domain)
+        elif (self.page_type_name == 'linktourl'):
             return self.content.cast().url
-        if (self.page_type_name == 'linktopage'):
-            domain = ''
-            if self.content.cast().page.publish_on.pk != settings.SITE_ID:
-                domain = 'http://%s' % self.content.cast().page.publish_on.domain
-            return '%s%s' % (domain, self.content.cast().page.url)
+        elif (self.page_type_name == 'linktopage'):
+            return self.content.cast().page._url(show_domain=show_domain)
         from templatetags.page_utils import dynamic_reverse 
-        return dynamic_reverse(self.page_type_name)
+        return dynamic_reverse(self.page_type_name, site=self.publish_on.pk, show_domain=show_domain)
     url = property(_url)
      
     def _absolute_url(self):

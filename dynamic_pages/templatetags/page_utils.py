@@ -94,11 +94,10 @@ def url_quote(value):
 import re
 
 
-def dynamic_reverse(view_name, site=settings.SITE_ID, args=[]):
+def dynamic_reverse(view_name, site=settings.SITE_ID, args=[], show_domain=False):
     url = get_dynamic_url(view_name)
     if not url:
         return ''
-   
     pages = Page.objects.filter(page_type = url.get_full_name())
     if not pages:
         return ''
@@ -118,7 +117,7 @@ def dynamic_reverse(view_name, site=settings.SITE_ID, args=[]):
             pattern = re.sub('[\?\^\$]', '', pattern) 
            
             domain = ''
-            if site != settings.SITE_ID:
+            if show_domain or site != settings.SITE_ID:
                 domain = 'http://%s' % Site.objects.get(pk = site).domain
             
             if pattern == '/':               

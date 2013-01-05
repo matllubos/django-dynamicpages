@@ -2,6 +2,7 @@
 from django import forms
 from django.utils.encoding import force_unicode
 from django.utils.html import escape, conditional_escape
+
 from utilities.models.fields import TreeForeignKey
 
 # This is not best solution, but is simplest
