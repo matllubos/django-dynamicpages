@@ -60,7 +60,10 @@ class Page(models.Model):
         
     def _url(self, show_domain=False):
         if (self.page_type_name == 'static'):
-            return '/'+self.absolute_url
+            domain = ''
+            if show_domain or self.publish_on != settings.SITE_ID:
+                domain = 'http://%s' % Site.objects.get(pk = self.publish_on).domain
+            return '%s/%s' % (domain, self.absolute_url)
         elif (self.page_type_name == 'linktofirstpage'):
             for qs in (Page.objects.filter(parent = self, order__isnull = False).order_by('order'), Page.objects.filter(parent = self, order__isnull = True)):
                 for page in qs:
