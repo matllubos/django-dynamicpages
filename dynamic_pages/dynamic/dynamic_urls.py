@@ -56,12 +56,15 @@ class DynamicUrl:
                 pattern_parts.append(page.absolute_url)
             
             if pattern != '':
-                pattern_parts.append(pattern)
-                
-            patterns.append(r'^%s/?$'% '/'.join(pattern_parts))
+                pattern_parts.append(pattern)           
+            
+            if pattern_parts:    
+                patterns.append(r'^%s/$'% '/'.join(pattern_parts))
+            else:
+                patterns.append(r'^$')
         
-        if page.default and not r'^/?$' in patterns:
-            patterns.append(r'^/?$')
+        if page.default and not r'^$' in patterns:
+            patterns.append(r'^$')
                 
         return patterns
         
